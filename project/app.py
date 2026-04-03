@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -109,6 +110,53 @@ def _load_json_item(section: str, slug: str) -> dict[str, Any]:
     }
 
 
+
+
+def _date_sort_key(date_str: str) -> datetime:
+    if not date_str:
+        return datetime.min
+
+    normalized = date_str.strip().replace("/", "-")
+    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S"):
+        try:
+            return datetime.strptime(normalized, fmt)
+        except ValueError:
+            continue
+
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError:
+        return datetime.min
+
+
+def _latest_items(section: str, content_type: str, limit: int = 3) -> list[dict[str, Any]]:
+    if content_type == "markdown":
+        raw_items = _load_markdown_collection(section)
+    else:
+        raw_items = _load_json_collection(section)
+
+    sorted_items = sorted(raw_items, key=lambda item: _date_sort_key(item.get("date", "")), reverse=True)
+    latest = sorted_items[:limit]
+
+    return [
+        {
+            "title": item.get("title", item["slug"]),
+            "slug": item["slug"],
+            "date": item.get("date", ""),
+            "url": f"/{section}/{item['slug']}",
+        }
+        for item in latest
+    ]
+
+
+def _build_top_latest_content() -> dict[str, list[dict[str, Any]]]:
+    return {
+        "novels": _latest_items("novels", "markdown", 3),
+        "blog": _latest_items("blog", "markdown", 3),
+        "gallery": _latest_items("gallery", "json", 3),
+        "games": _latest_items("games", "json", 3),
+    }
+
 def _safe_generic_section(section: str) -> str:
     if section not in GENERIC_SECTIONS:
         abort(404)
@@ -117,7 +165,8 @@ def _safe_generic_section(section: str) -> str:
 
 @app.get("/")
 def top() -> str:
-    return render_template("top.html", sections=SECTIONS)
+    latest_content = _build_top_latest_content()
+    return render_template("top.html", sections=SECTIONS, latest_content=latest_content)
 
 
 @app.get("/novels")
