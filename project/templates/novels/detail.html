@@ -1,16 +1,13 @@
-<!doctype html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <title>{{ novel.title }} | novels</title>
-  </head>
-  <body>
-    <p><a href="/novels">一覧へ戻る</a></p>
-    <h1>{{ novel.title }}</h1>
-    {% if novel.date %}
-    <p>公開日: {{ novel.date }}</p>
-    {% endif %}
-    <hr />
-    <pre>{{ novel.body }}</pre>
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}{{ novel.title }} | novels{% endblock %}
+
+{% block content %}
+<p><a href="/novels">一覧へ戻る</a></p>
+<h2>{{ novel.title }}</h2>
+{% if novel.date %}
+<p>公開日: {{ novel.date }}</p>
+{% endif %}
+<hr />
+<pre>{{ novel.body }}</pre>
+{% endblock %}

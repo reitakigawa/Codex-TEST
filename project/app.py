@@ -126,7 +126,7 @@ def top() -> str:
 @app.get("/novels/")
 def novels_index() -> str:
     novels = _load_novels()
-    return render_template("novels/index.html", novels=novels)
+    return render_template("novels/list.html", novels=novels)
 
 
 @app.get("/novels/<slug>")
