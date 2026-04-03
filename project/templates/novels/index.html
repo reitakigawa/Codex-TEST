@@ -8,32 +8,20 @@
     <h1>novels</h1>
     <p><a href="/">トップへ戻る</a></p>
 
-    <h2>Markdownコンテンツ</h2>
-    {% if markdown_items %}
+    <h2>小説一覧</h2>
+    {% if novels %}
     <ul>
-      {% for item in markdown_items %}
+      {% for novel in novels %}
       <li>
-        <strong>{{ item.title }}</strong>
-        <small>({{ item.source }})</small>
+        <a href="/novels/{{ novel.slug }}">{{ novel.title }}</a>
+        {% if novel.date %}
+        <small>({{ novel.date }})</small>
+        {% endif %}
       </li>
       {% endfor %}
     </ul>
     {% else %}
-    <p>まだMarkdownコンテンツはありません。</p>
-    {% endif %}
-
-    <h2>JSONコンテンツ</h2>
-    {% if json_items %}
-    <ul>
-      {% for item in json_items %}
-      <li>
-        <strong>{{ item.slug }}</strong>
-        <small>({{ item.source }})</small>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>まだJSONコンテンツはありません。</p>
+    <p>まだ小説はありません。</p>
     {% endif %}
   </body>
 </html>
