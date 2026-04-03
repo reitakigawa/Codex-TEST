@@ -39,3 +39,35 @@ git push -u origin $(git branch --show-current)
 git remote -v
 git ls-remote --heads origin
 ```
+
+## Render へのデプロイ手順（Flask）
+
+このリポジトリには `render.yaml` を追加済みです。Render 側で Blueprint デプロイを使うと設定を自動で読み込めます。
+
+### 1. GitHub連携
+1. Render にログイン
+2. **New +** → **Blueprint** を選択
+3. このGitHubリポジトリを選択
+4. `render.yaml` を読み込んで作成
+
+### 2. デプロイ設定（本リポジトリの内容）
+- `rootDir`: `project`
+- `buildCommand`: `pip install -r requirements.txt`
+- `startCommand`: `gunicorn app:app`
+- `env`: `python`
+
+### 3. 初回デプロイ後の確認
+- Render の Logs で `gunicorn` 起動を確認
+- 発行されたURLにアクセスしてトップページが表示されるか確認
+
+### 4. 以降の更新
+- `main` ブランチ（または接続ブランチ）に push
+- `autoDeploy: true` のため自動再デプロイ
+
+## ローカル起動（確認用）
+
+```bash
+cd project
+pip install -r requirements.txt
+python app.py
+```
