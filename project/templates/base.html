@@ -15,6 +15,14 @@
         <a href="/gallery">gallery</a>
         <a href="/games">games</a>
         <a href="/sandbox/">sandbox</a>
+        {% if current_user %}
+        <span>@{{ current_user.username }}</span>
+        <form method="post" action="{{ url_for('logout') }}" style="display:inline;">
+          <button type="submit">logout</button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('twitter_login') }}">login with X(Twitter)</a>
+        {% endif %}
       </nav>
       <hr />
     </header>

@@ -72,6 +72,25 @@ pip install -r requirements.txt
 python app.py
 ```
 
+## Twitter認証（Xログイン）設定
+
+1. X Developer Portal で OAuth 2.0 の App を作成
+2. Callback URL に以下を登録
+   - `http://127.0.0.1:5000/auth/twitter/callback`
+3. 環境変数を設定して起動
+
+```bash
+cd project
+export FLASK_SECRET_KEY='replace-with-random-secret'
+export TWITTER_CLIENT_ID='your-twitter-client-id'
+export TWITTER_CLIENT_SECRET='your-twitter-client-secret'
+python app.py
+```
+
+ログインURL:
+
+- `http://127.0.0.1:5000/auth/twitter/login`
+
 ## コンテンツ追加手順
 
 コンテンツ追加方法は以下を参照してください。
