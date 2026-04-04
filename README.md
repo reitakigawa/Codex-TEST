@@ -1,1 +1,100 @@
 # Codex-TEST
+
+## GitHubリポジトリに接続する手順
+
+> まだGitHub上にリポジトリを作っていない場合は、先にGitHubで空リポジトリを作成してください。
+
+1. 接続先のリモートを確認
+
+```bash
+git remote -v
+```
+
+2. `origin` を追加（HTTPS）
+
+```bash
+git remote add origin https://github.com/<your-account>/<your-repo>.git
+```
+
+3. すでに `origin` がある場合はURLを更新
+
+```bash
+git remote set-url origin https://github.com/<your-account>/<your-repo>.git
+```
+
+4. 現在のブランチを初回push
+
+```bash
+git push -u origin $(git branch --show-current)
+```
+
+## 認証のポイント
+
+- HTTPSの場合: GitHub Personal Access Token（PAT）を利用
+- SSHの場合: `git@github.com:<your-account>/<your-repo>.git` を `origin` に設定し、公開鍵をGitHubに登録
+
+## 接続確認
+
+```bash
+git remote -v
+git ls-remote --heads origin
+```
+
+## Render へのデプロイ手順（Flask）
+
+このリポジトリには `render.yaml` を追加済みです。Render 側で Blueprint デプロイを使うと設定を自動で読み込めます。
+
+### 1. GitHub連携
+1. Render にログイン
+2. **New +** → **Blueprint** を選択
+3. このGitHubリポジトリを選択
+4. `render.yaml` を読み込んで作成
+
+### 2. デプロイ設定（本リポジトリの内容）
+- `rootDir`: `project`
+- `buildCommand`: `pip install -r requirements.txt`
+- `startCommand`: `gunicorn app:app`
+- `env`: `python`
+
+### 3. 初回デプロイ後の確認
+- Render の Logs で `gunicorn` 起動を確認
+- 発行されたURLにアクセスしてトップページが表示されるか確認
+
+### 4. 以降の更新
+- `main` ブランチ（または接続ブランチ）に push
+- `autoDeploy: true` のため自動再デプロイ
+
+## ローカル起動（確認用）
+
+```bash
+cd project
+pip install -r requirements.txt
+python app.py
+```
+
+## Twitter認証（Xログイン）設定
+
+1. X Developer Portal で OAuth 2.0 の App を作成
+2. Callback URL に以下を登録
+   - `http://127.0.0.1:5000/auth/twitter/callback`
+3. 環境変数を設定して起動
+
+```bash
+cd project
+export FLASK_SECRET_KEY='replace-with-random-secret'
+export TWITTER_CLIENT_ID='your-twitter-client-id'
+export TWITTER_CLIENT_SECRET='your-twitter-client-secret'
+python app.py
+```
+
+ログインURL:
+
+- `http://127.0.0.1:5000/auth/twitter/login`
+
+※ `Authlib` 未導入、または `TWITTER_CLIENT_ID` / `TWITTER_CLIENT_SECRET` 未設定の場合は、ナビゲーション上で Twitter ログインは無効表示になります。
+
+## コンテンツ追加手順
+
+コンテンツ追加方法は以下を参照してください。
+
+- `docs/content-adding-guide.md`
