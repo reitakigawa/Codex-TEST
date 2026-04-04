@@ -15,6 +15,9 @@ except ImportError:  # pragma: no cover - optional dependency for auth feature
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-change-me")
+from flask import Flask, abort, render_template
+
+app = Flask(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 CONTENT_DIR = BASE_DIR / "content"
@@ -295,3 +298,4 @@ def section_index(section: str) -> str:
 
 if __name__ == "__main__":
     app.run(debug=True)
+    app.run(debug=False)
