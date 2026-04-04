@@ -24,6 +24,8 @@
         <a href="{{ url_for('twitter_login') }}">login with X(Twitter)</a>
         {% else %}
         <span>Twitter login unavailable</span>
+        {% else %}
+        <a href="{{ url_for('twitter_login') }}">login with X(Twitter)</a>
         {% endif %}
       </nav>
       <hr />
