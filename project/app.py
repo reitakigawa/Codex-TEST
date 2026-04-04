@@ -15,6 +15,9 @@ except ImportError:  # pragma: no cover - optional dependency for auth feature
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-change-me")
+from flask import Flask, abort, render_template
+
+app = Flask(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 CONTENT_DIR = BASE_DIR / "content"
@@ -196,6 +199,7 @@ def inject_auth_user() -> dict[str, Any]:
         "current_user": session.get("user"),
         "twitter_auth_enabled": twitter_auth_enabled,
     }
+    return {"current_user": session.get("user")}
 
 
 @app.get("/auth/twitter/login")
@@ -204,6 +208,9 @@ def twitter_login() -> Any:
         return "Twitter login is unavailable because Authlib is not installed.", 503
     if not os.environ.get("TWITTER_CLIENT_ID") or not os.environ.get("TWITTER_CLIENT_SECRET"):
         return "Twitter login is unavailable because OAuth credentials are not configured.", 503
+        return "Authlib is not installed. Run: pip install -r requirements.txt", 500
+    if not os.environ.get("TWITTER_CLIENT_ID") or not os.environ.get("TWITTER_CLIENT_SECRET"):
+        return "Twitter OAuth credentials are not configured.", 500
     redirect_uri = url_for("twitter_callback", _external=True)
     return twitter.authorize_redirect(redirect_uri)
 
@@ -212,6 +219,7 @@ def twitter_login() -> Any:
 def twitter_callback() -> Any:
     if twitter is None:
         return "Twitter login is unavailable because Authlib is not installed.", 503
+        return "Authlib is not installed. Run: pip install -r requirements.txt", 500
     token = twitter.authorize_access_token()
     response = twitter.get("users/me?user.fields=name,username,profile_image_url", token=token)
     profile = response.json().get("data", {})
@@ -303,3 +311,4 @@ def section_index(section: str) -> str:
 
 if __name__ == "__main__":
     app.run(debug=True)
+    app.run(debug=False)
