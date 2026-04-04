@@ -91,6 +91,8 @@ python app.py
 
 - `http://127.0.0.1:5000/auth/twitter/login`
 
+※ `Authlib` 未導入、または `TWITTER_CLIENT_ID` / `TWITTER_CLIENT_SECRET` 未設定の場合は、ナビゲーション上で Twitter ログインは無効表示になります。
+
 ## コンテンツ追加手順
 
 コンテンツ追加方法は以下を参照してください。

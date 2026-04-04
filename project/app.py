@@ -190,12 +190,24 @@ def _safe_generic_section(section: str) -> str:
 
 @app.context_processor
 def inject_auth_user() -> dict[str, Any]:
+    twitter_auth_enabled = (
+        twitter is not None
+        and bool(os.environ.get("TWITTER_CLIENT_ID"))
+        and bool(os.environ.get("TWITTER_CLIENT_SECRET"))
+    )
+    return {
+        "current_user": session.get("user"),
+        "twitter_auth_enabled": twitter_auth_enabled,
+    }
     return {"current_user": session.get("user")}
 
 
 @app.get("/auth/twitter/login")
 def twitter_login() -> Any:
     if twitter is None:
+        return "Twitter login is unavailable because Authlib is not installed.", 503
+    if not os.environ.get("TWITTER_CLIENT_ID") or not os.environ.get("TWITTER_CLIENT_SECRET"):
+        return "Twitter login is unavailable because OAuth credentials are not configured.", 503
         return "Authlib is not installed. Run: pip install -r requirements.txt", 500
     if not os.environ.get("TWITTER_CLIENT_ID") or not os.environ.get("TWITTER_CLIENT_SECRET"):
         return "Twitter OAuth credentials are not configured.", 500
@@ -206,6 +218,7 @@ def twitter_login() -> Any:
 @app.get("/auth/twitter/callback")
 def twitter_callback() -> Any:
     if twitter is None:
+        return "Twitter login is unavailable because Authlib is not installed.", 503
         return "Authlib is not installed. Run: pip install -r requirements.txt", 500
     token = twitter.authorize_access_token()
     response = twitter.get("users/me?user.fields=name,username,profile_image_url", token=token)
