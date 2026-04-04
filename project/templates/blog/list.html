@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}blog | Personal Site{% endblock %}
+
+{% block content %}
+<h2>ブログ一覧</h2>
+{% if posts %}
+<ul>
+  {% for post in posts %}
+  <li>
+    <a href="/blog/{{ post.slug }}">{{ post.title }}</a>
+    {% if post.date %}
+    <small>({{ post.date }})</small>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>まだブログ記事はありません。</p>
+{% endif %}
+{% endblock %}
