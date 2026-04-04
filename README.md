@@ -71,3 +71,9 @@ cd project
 pip install -r requirements.txt
 python app.py
 ```
+
+## コンテンツ追加手順
+
+コンテンツ追加方法は以下を参照してください。
+
+- `docs/content-adding-guide.md`
