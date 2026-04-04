@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}トップ | Personal Site{% endblock %}
+
+{% block content %}
+<h2>トップページ</h2>
+<p>各カテゴリの最新コンテンツ（最大3件）です。</p>
+
+{% for section_name, items in latest_content.items() %}
+<section>
+  <h3><a href="/{{ section_name }}">{{ section_name }}</a></h3>
+  {% if items %}
+  <ul>
+    {% for item in items %}
+    <li>
+      <a href="{{ item.url }}">{{ item.title }}</a>
+      {% if item.date %}
+      <small>({{ item.date }})</small>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>まだコンテンツはありません。</p>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

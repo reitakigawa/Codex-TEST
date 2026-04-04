@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{{ novel.title }} | novels{% endblock %}
+
+{% block content %}
+<p><a href="/novels">一覧へ戻る</a></p>
+<h2>{{ novel.title }}</h2>
+{% if novel.date %}
+<p>公開日: {{ novel.date }}</p>
+{% endif %}
+<hr />
+<pre>{{ novel.body }}</pre>
+{% endblock %}
