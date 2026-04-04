@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}games | Personal Site{% endblock %}
+
+{% block content %}
+<h2>ゲーム一覧</h2>
+{% if items %}
+<ul>
+  {% for item in items %}
+  <li>
+    <a href="/games/{{ item.slug }}">{{ item.title }}</a>
+    {% if item.date %}
+    <small>({{ item.date }})</small>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>まだゲーム項目はありません。</p>
+{% endif %}
+{% endblock %}

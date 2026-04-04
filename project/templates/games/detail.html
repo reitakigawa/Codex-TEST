@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.title }} | games{% endblock %}
+
+{% block content %}
+<p><a href="/games">一覧へ戻る</a></p>
+<h2>{{ item.title }}</h2>
+{% if item.date %}
+<p>公開日: {{ item.date }}</p>
+{% endif %}
+
+{% if item.data.asset %}
+<p>静的アセット: <a href="/static/games/{{ item.data.asset }}">{{ item.data.asset }}</a></p>
+{% endif %}
+
+<pre>{{ item.data | tojson(indent=2) }}</pre>
+{% endblock %}
