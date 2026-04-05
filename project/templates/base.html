@@ -21,13 +21,6 @@
           <form method="post" action="{{ url_for('logout') }}" style="display:inline;">
             <button type="submit">logout</button>
           </form>
-        {% else %}
-          {% if twitter_auth_enabled %}
-            <a href="{{ url_for('twitter_login') }}">login with X(Twitter)</a>
-          {% else %}
-            <span>Twitter login unavailable</span>
-          {% endif %}
-        {% endif %}
         {% elif twitter_auth_enabled %}
             <a href="{{ url_for('twitter_login') }}">login with X(Twitter)</a>
         {% else %}
