@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 import json
+import os
+from functools import wraps
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from flask import Flask, abort, jsonify, redirect, render_template, session, url_for
+
+try:
+    from authlib.integrations.flask_client import OAuth
+except ImportError:  # pragma: no cover - optional dependency for auth feature
+    OAuth = None
+
+app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-change-me")
 from flask import Flask, abort, render_template
 
 app = Flask(__name__)
@@ -13,6 +24,21 @@ BASE_DIR = Path(__file__).resolve().parent
 CONTENT_DIR = BASE_DIR / "content"
 SECTIONS = ("novels", "blog", "gallery", "games", "sandbox")
 GENERIC_SECTIONS = ("sandbox",)
+
+twitter = None
+if OAuth is not None:
+    oauth = OAuth(app)
+    twitter = oauth.register(
+        name="twitter",
+        client_id=os.environ.get("TWITTER_CLIENT_ID"),
+        client_secret=os.environ.get("TWITTER_CLIENT_SECRET"),
+        authorize_url="https://twitter.com/i/oauth2/authorize",
+        access_token_url="https://api.twitter.com/2/oauth2/token",
+        api_base_url="https://api.twitter.com/2/",
+        client_kwargs={
+            "scope": "tweet.read users.read offline.access",
+        },
+    )
 
 
 def _parse_yaml_header(markdown_text: str) -> tuple[dict[str, str], str]:
@@ -163,6 +189,75 @@ def _safe_generic_section(section: str) -> str:
     return section
 
 
+def _is_twitter_auth_enabled() -> bool:
+    return (
+        twitter is not None
+        and bool(os.environ.get("TWITTER_CLIENT_ID"))
+        and bool(os.environ.get("TWITTER_CLIENT_SECRET"))
+    )
+
+
+def login_required(view_func: Any) -> Any:
+    @wraps(view_func)
+    def wrapped_view(*args: Any, **kwargs: Any) -> Any:
+        if not session.get("user"):
+            return redirect(url_for("twitter_login"))
+        return view_func(*args, **kwargs)
+
+    return wrapped_view
+
+
+@app.context_processor
+def inject_auth_user() -> dict[str, Any]:
+    return {
+        "current_user": session.get("user"),
+        "twitter_auth_enabled": _is_twitter_auth_enabled(),
+    }
+
+
+@app.get("/auth/twitter/available")
+def twitter_auth_available() -> Any:
+    return jsonify({"available": _is_twitter_auth_enabled()})
+
+
+@app.get("/auth/twitter/login")
+def twitter_login() -> Any:
+    if twitter is None:
+        return "Twitter login is unavailable because Authlib is not installed.", 503
+    if not os.environ.get("TWITTER_CLIENT_ID") or not os.environ.get("TWITTER_CLIENT_SECRET"):
+        return "Twitter login is unavailable because OAuth credentials are not configured.", 503
+    redirect_uri = url_for("twitter_callback", _external=True)
+    return twitter.authorize_redirect(redirect_uri)
+
+
+@app.get("/auth/twitter/callback")
+def twitter_callback() -> Any:
+    if twitter is None:
+        return "Twitter login is unavailable because Authlib is not installed.", 503
+    token = twitter.authorize_access_token()
+    response = twitter.get("users/me?user.fields=name,username,profile_image_url", token=token)
+    profile = response.json().get("data", {})
+    session["user"] = {
+        "id": profile.get("id"),
+        "name": profile.get("name"),
+        "username": profile.get("username"),
+        "profile_image_url": profile.get("profile_image_url"),
+    }
+    return redirect(url_for("top"))
+
+
+@app.post("/auth/logout")
+def logout() -> Any:
+    session.pop("user", None)
+    return redirect(url_for("top"))
+
+
+@app.get("/me")
+@login_required
+def me() -> Any:
+    return render_template("profile.html", user=session["user"])
+
+
 @app.get("/")
 def top() -> str:
     latest_content = _build_top_latest_content()
@@ -235,4 +330,5 @@ def section_index(section: str) -> str:
 
 
 if __name__ == "__main__":
+    app.run(debug=True)
     app.run(debug=False)
